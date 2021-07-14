@@ -5,6 +5,7 @@ import Prelude
 import Data.Array as Array
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
+import Data.List as List
 import Data.String as String
 import Data.Tuple (Tuple(..))
 import Text.Parsing.Parser (Parser)
@@ -25,7 +26,7 @@ instance showPathRootless ∷ Show PathRootless where show = genericShow
 parse ∷ Parser String PathRootless
 parse = do
   head ← parseSegmentNZ
-  tail ← Array.many (char '/' *> parseSegment)
+  tail ← Array.fromFoldable <$> List.manyRec (char '/' *> parseSegment)
   pure (PathRootless (Tuple head tail))
 
 -- | A printer for a _path-rootless_ URI component.

@@ -9,6 +9,7 @@ import Prelude
 
 import Control.Alt ((<|>))
 import Data.Array as Array
+import Data.List as List
 import Data.String.CodeUnits as String
 import Text.Parsing.Parser (Parser)
 import Text.Parsing.Parser.Combinators ((<?>))
@@ -34,7 +35,7 @@ unsafeToString (IPv6Address s) = "[" <> s <> "]"
 parser ∷ Parser String IPv6Address
 parser =
   IPv6Address
-    <$> (char '[' *> (String.fromCharArray <$> Array.some ipv6Char) <* char ']')
+    <$> (char '[' *> (String.fromCharArray <<< Array.fromFoldable <$> List.someRec ipv6Char) <* char ']')
     <?> "IPv6 address"
   where
     ipv6Char ∷ Parser String Char

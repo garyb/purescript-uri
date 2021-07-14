@@ -11,6 +11,7 @@ import Prelude
 
 import Data.Array as Array
 import Data.Int (fromNumber)
+import Data.List as List
 import Data.Maybe (Maybe(..))
 import Data.String.CodeUnits as String
 import Global (readInt)
@@ -54,7 +55,7 @@ unsafeFromInt i =
 -- | `':'` prefix.
 parser ∷ Parser String Port
 parser = do
-  s ← String.fromCharArray <$> (char ':' *> Array.some digit)
+  s ← String.fromCharArray <<< Array.fromFoldable <$> (char ':' *> List.someRec digit)
   case fromNumber $ readInt 10 s of
     Just x → pure (Port x)
     _ → fail "Expected a valid port number"

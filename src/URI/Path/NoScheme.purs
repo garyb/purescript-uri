@@ -5,6 +5,7 @@ import Prelude
 import Data.Array as Array
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
+import Data.List as List
 import Data.String as String
 import Data.Tuple (Tuple(..))
 import Text.Parsing.Parser (Parser)
@@ -27,7 +28,7 @@ instance showPathNoScheme ∷ Show PathNoScheme where show = genericShow
 parse ∷ Parser String PathNoScheme
 parse = do
   head ← parseSegmentNZNC
-  tail ← Array.many (char '/' *> parseSegment)
+  tail ← Array.fromFoldable <$> List.manyRec (char '/' *> parseSegment)
   pure (PathNoScheme (Tuple head tail))
 
 -- | A printer for a _path-noscheme_ URI component.

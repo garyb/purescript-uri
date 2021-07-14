@@ -21,12 +21,13 @@ import Data.Array as Array
 import Data.Either (Either(..), either)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
+import Data.List as List
 import Data.Newtype (class Newtype, un)
 import Data.String (joinWith) as String
 import Data.String.CodeUnits (singleton) as String
 import Data.String.NonEmpty (NonEmptyString)
-import Data.String.NonEmpty.CodeUnits (singleton) as NES
 import Data.String.NonEmpty (unsafeFromString, toString) as NES
+import Data.String.NonEmpty.CodeUnits (singleton) as NES
 import Global.Unsafe (unsafeDecodeURIComponent, unsafeEncodeURIComponent)
 import Partial.Unsafe (unsafePartial)
 import Text.Parsing.Parser (ParseError(..), ParseState(..), Parser, ParserT(..), runParser)
@@ -92,7 +93,7 @@ printEncoded ∷ Parser String Char → String → String
 printEncoded p s = either (const s) identity (runParser s parse)
   where
     parse ∷ Parser String String
-    parse = (String.joinWith "" <$> Array.many (simpleChar <|> encodedChar)) <* eof
+    parse = (String.joinWith "" <<< Array.fromFoldable <$> List.manyRec (simpleChar <|> encodedChar)) <* eof
     simpleChar ∷ Parser String String
     simpleChar = String.singleton <$> p
     encodedChar ∷ Parser String String

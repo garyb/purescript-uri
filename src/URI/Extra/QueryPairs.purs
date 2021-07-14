@@ -24,10 +24,11 @@ import Data.Bifunctor (bimap)
 import Data.Either (Either)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
+import Data.List as List
 import Data.Maybe (Maybe(..))
 import Data.String as String
-import Data.String.NonEmpty.CodeUnits (singleton) as NES
 import Data.String.NonEmpty (joinWith) as NES
+import Data.String.NonEmpty.CodeUnits (singleton) as NES
 import Data.Traversable (traverse)
 import Data.Tuple (Tuple(..))
 import Global.Unsafe (unsafeDecodeURIComponent)
@@ -77,10 +78,10 @@ parsePart
   → Parser String (Tuple k (Maybe v))
 parsePart parseK parseV = do
   key ← wrapParser (parseK <<< Key) $
-    NES.joinWith "" <$> Array.some (NES.singleton <$> keyPartChar <|> pctEncoded)
+    NES.joinWith "" <$> List.someRec (NES.singleton <$> keyPartChar <|> pctEncoded)
   value ← wrapParser (traverse (parseV <<< Value)) $ optionMaybe do
     _ ← char '='
-    NES.joinWith "" <$> Array.many (NES.singleton <$> valuePartChar <|> pctEncoded)
+    NES.joinWith "" <$> List.manyRec (NES.singleton <$> valuePartChar <|> pctEncoded)
   pure $ Tuple key value
 
 -- | A printer for key/value pairs style query string.
